@@ -2,6 +2,7 @@ version: '4'
 services:
   server: 
     build: .
+    container_name: server
     command: "rails server -b 0.0.0.0"
     volumes:
       - ./:/usr/src/
@@ -10,15 +11,16 @@ services:
     ports:
       - 3002:3002
     depends_on:
-      - db
+      - mysql
   
-  db:
-    image: mysql2
+  mysql:
+    platform: linux/x86_64
+    container_name: mysql
+    image: percona:8-centos
     environment:
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password 
+      MYSQL_ROOT_PASSWORD: password 
     volumes:
-      - mysql2:/var/lib/mysql2/data
+      - mysql:/var/lib/mysql2/data
 
 volumes:
-  mysql2:
+  mysql:
