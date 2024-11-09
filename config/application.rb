@@ -23,5 +23,10 @@ module HitFactorBack
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    config.credentials.content_path = 'config/credentials/local.yml.enc'
+    
+    config.active_record.encryption.primary_key = 'dBFLZv0h3uhbdY2Ce7ji6ib9KiR7dlcF'
+    config.active_record.encryption.deterministic_key = 'XoFuI50ZBczn3pVin0EkAP8fy3jVl8JH'
+    config.active_record.encryption.key_derivation_salt = 'IaTqzts4DcbsClt1byuDTCJwnPWh7IjG'
   end
 end
