@@ -31,6 +31,7 @@ module Api
 
     # PATCH/PUT /users/1 or /users/1.json
     def update
+      check_token
       @user = User.find(params[:id].to_i)
       @user.update!(params.deep_symbolize_keys)
       render json: @user
@@ -38,7 +39,17 @@ module Api
 
     # DELETE /users/1 or /users/1.json
     def destroy
+      check_token
       @user.destroy!
+    end
+
+    def authorization
+      @user = User.find_by(login: params[:login], password: params[:password])
+      if @user
+        render json: generate_token
+      else
+        render json: {error: 'no_this_user'}
+      end
     end
 
     private
@@ -50,6 +61,16 @@ module Api
       # Only allow a list of trusted parameters through.
       def user_params
         params.require(:user).permit(:name, :last_name, :login, :email, :phone_number, :password, :uuid, :parameters)
+      end
+
+      def generate_token
+        session[:token_time] = Time.now
+        session[:token] = SecureRandom.hex(10)
+        {tocken: session[:token]}
+      end
+
+      def check_token
+        raise 'invalid token' unless session[:token] == params[:tocker] and (Time.now - session[:token_time]) < 3600
       end
   end
 end
