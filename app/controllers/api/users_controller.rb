@@ -1,6 +1,7 @@
 module Api
   class UsersController < ApplicationController
-    before_action :set_user, only: %i[ show edit update destroy ]
+    skip_before_action :verify_authenticity_token
+    #before_action :set_user, only: %i[ show edit update destroy ]
 
     # GET /users or /users.json
     def index
@@ -25,7 +26,7 @@ module Api
 
     # POST /users or /users.json
     def create
-      @user = User.new(user_params)
+      @user = User.create!(user_params)
       render json: @user
     end
 
