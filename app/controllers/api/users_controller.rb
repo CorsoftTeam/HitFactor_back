@@ -5,13 +5,13 @@ module Api
 
     # GET /users or /users.json
     def index
-      @users = User.all
-      render json: @users
+      render json: { "error": "мы не показываем список всех пользователей"}
     end
 
     # GET /users/1 or /users/1.json
     def show
-      @user = User.find(params[:id].to_i)
+      check_token
+      @user = User.find_by_uuid(params[:id])
       render json: @user
     end
 
@@ -26,6 +26,7 @@ module Api
 
     # POST /users or /users.json
     def create
+      validate_user_params(user_params)
       @user = User.create!(user_params)
       render json: @user
     end
@@ -33,7 +34,7 @@ module Api
     # PATCH/PUT /users/1 or /users/1.json
     def update
       check_token
-      @user = User.find(params[:id].to_i)
+      @user = User.find_by_uuid(params[:id])
       @user.update!(params.deep_symbolize_keys)
       render json: @user
     end
@@ -41,6 +42,7 @@ module Api
     # DELETE /users/1 or /users/1.json
     def destroy
       check_token
+      @user = User.find_by_uuid(params[:id])
       @user.destroy!
     end
 
@@ -67,11 +69,16 @@ module Api
       def generate_token
         session[:token_time] = Time.now
         session[:token] = SecureRandom.hex(10)
-        {tocken: session[:token]}
+        {token: session[:token]}
       end
 
       def check_token
-        raise 'invalid token' unless session[:token] == params[:tocker] and (Time.now - session[:token_time]) < 3600
+        render json: { "error": "неправильный токен" }, status: 403 unless session[:token] == params[:tocker] and (Time.now - session[:token_time]) < 3600
+      end
+
+      def validate_user_params(u_params)
+        u_params = u_params.select { |k,v| !v.nil?}
+        render json: { "error": "ошибка в параметрах пользователя" }, status: 400
       end
   end
 end
