@@ -1,4 +1,4 @@
-FROM ruby:3.0.2
+FROM ruby:3.2.4
 
 # установка библиотек для работы приложения (сейчас отсутствуют)
 RUN apt-get update -qq && apt-get install -y locales

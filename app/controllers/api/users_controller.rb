@@ -26,15 +26,20 @@ module Api
 
     # POST /users or /users.json
     def create
-      validate_user_params(user_params)
-      @user = User.create!(user_params)
-      render json: @user
+      p "params = #{params}. Это nil? - #{params.nil?}"
+      if valid_user_params?(user_params)
+        @user = User.create!(user_params)
+        @user.set_uuid
+        render json: @user, status: 201
+      else
+        render json: { "error": "Ошибка в параметрах пользователя" }, code: 401
+      end
     end
 
     # PATCH/PUT /users/1 or /users/1.json
     def update
       check_token
-      @user = User.find_by_uuid(params[:id])
+      set_user
       @user.update!(params.deep_symbolize_keys)
       render json: @user
     end
@@ -42,7 +47,7 @@ module Api
     # DELETE /users/1 or /users/1.json
     def destroy
       check_token
-      @user = User.find_by_uuid(params[:id])
+      set_user
       @user.destroy!
     end
 
@@ -51,18 +56,19 @@ module Api
       if @user
         render json: generate_token
       else
-        render json: {error: 'no_this_user'}
+        render json: { "error": 'no_this_user' }, status: 401
       end
     end
 
     private
       # Use callbacks to share common setup or constraints between actions.
       def set_user
-        @user = User.find(params[:id])
+        @user = User.find_by_uuid(params[:id])
       end
 
       # Only allow a list of trusted parameters through.
       def user_params
+        p "params = #{params}. Это nil? - #{params.nil?}"
         params.require(:user).permit(:name, :last_name, :login, :email, :phone_number, :password, :uuid, :parameters)
       end
 
@@ -76,9 +82,8 @@ module Api
         render json: { "error": "неправильный токен" }, status: 403 unless session[:token] == params[:tocker] and (Time.now - session[:token_time]) < 3600
       end
 
-      def validate_user_params(u_params)
+      def valid_user_params?(u_params)
         u_params = u_params.select { |k,v| !v.nil?}
-        render json: { "error": "ошибка в параметрах пользователя" }, status: 400
       end
   end
 end
