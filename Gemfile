@@ -5,20 +5,15 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '3.2.4'
 
-gem 'grape', '~> 1.7', '>= 1.7.1'
-gem 'grape-entity', '~> 1.0'
-gem 'grape-middleware-logger', '~> 1.12'
-gem 'grape-swagger', '~> 1.6', '>= 1.6.1'
-gem 'grape-swagger-entity', '~> 0.5.2'
-gem 'grape-swagger-rails', '~> 0.4.0'
 gem 'mysql2', '~> 0.5.5'
-gem 'puma', '~> 5.0'
+gem 'puma', '~> 6.0'
 gem 'rails', '~> 7.1'
 gem 'sprockets-rails', '~> 3.4', '>= 3.4.2'
 gem 'tzinfo-data', '~> 1.2023', '>= 1.2023.3', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'will_paginate', '~> 4.0'
 gem 'bootsnap'
 gem 'ostruct'
+gem 'rswag'
 
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
@@ -32,6 +27,7 @@ group :development, :test do
   gem 'rspec', '~> 3.12'
   gem 'rspec_junit_formatter', '~> 0.6.0'
   gem 'rspec-rails', '~> 6.0', '>= 6.0.3'
+  gem 'rack-test'
   gem 'rubocop', '~> 1.56', '>= 1.56.1'
   gem 'rubocop-performance', '~> 1.19'
   gem 'rubocop-rails', '~> 2.20', '>= 2.20.2'
