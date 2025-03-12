@@ -79,7 +79,7 @@ module Api
       end
 
       def check_token
-        render json: { "error": "неправильный токен" }, status: 403 unless session[:token] == params[:tocker] and (Time.now - session[:token_time]) < 3600
+        render json: { "error": "неправильный токен" }, status: 403 unless session[:token] == request.headers['Authorization'] and (Time.now - session[:token_time]) < 3600
       end
 
       def valid_user_params?(u_params)
