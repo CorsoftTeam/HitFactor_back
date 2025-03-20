@@ -40,7 +40,7 @@ module Api
     def update
       check_token
       set_user
-      @user.update!(params.deep_symbolize_keys)
+      @user.update!(user_params)
       render json: @user
     end
 
