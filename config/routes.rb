@@ -1,6 +1,13 @@
 Rails.application.routes.draw do
+  mount Rswag::Ui::Engine => '/swagger'
+  mount Rswag::Api::Engine => '/swagger'
   namespace :api do
-    resources :users
+    resources :users do
+      collection do
+        post :authorization
+        get :authorization
+      end
+    end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -8,8 +15,6 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
   get 'api/authorization', to: 'api/users#authorization'
-
-  mount GrapeSwaggerRails::Engine => '/swagger'
 
   # Defines the root path route ("/")
   # root "posts#index"

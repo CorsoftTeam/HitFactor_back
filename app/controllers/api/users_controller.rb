@@ -11,7 +11,7 @@ module Api
     # GET /users/1 or /users/1.json
     def show
       check_token
-      @user = User.find_by_uuid(params[:id])
+      @user = User.find_by_uuid(params[:id]) || { error: 'Пользователь не найден'}
       render json: @user
     end
 
@@ -40,7 +40,7 @@ module Api
     def update
       check_token
       set_user
-      @user.update!(params.deep_symbolize_keys)
+      @user.update!(user_params)
       render json: @user
     end
 
@@ -74,12 +74,13 @@ module Api
 
       def generate_token
         session[:token_time] = Time.now
-        session[:token] = SecureRandom.hex(10)
+        session[:token] = SecureRandom.hex(32)
         {token: session[:token]}
       end
 
       def check_token
-        render json: { "error": "неправильный токен" }, status: 403 unless session[:token] == params[:tocker] and (Time.now - session[:token_time]) < 3600
+        time = Time.now - session[:token_time].to_time
+        render json: { "error": "неправильный токен" }, status: 403 unless session[:token] == request.headers['Authorization'] and time < 3600.0
       end
 
       def valid_user_params?(u_params)
