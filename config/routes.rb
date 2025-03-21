@@ -5,7 +5,7 @@ Rails.application.routes.draw do
     resources :users do
       collection do
         post :authorization
-        get :authorization
+        get :get_me
       end
     end
   end

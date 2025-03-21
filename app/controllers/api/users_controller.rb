@@ -15,6 +15,12 @@ module Api
       render json: @user
     end
 
+    def get_me
+      check_token
+      @user = User.find_by_uuid(session[:id]) || { error: 'Пользователь не найден'}
+      render json: @user
+    end
+
     # GET /users/new
     def new
       @user = User.new
@@ -75,6 +81,7 @@ module Api
       def generate_token
         session[:token_time] = Time.now
         session[:token] = SecureRandom.hex(32)
+        session[:id] = @user.uuid
         {token: session[:token]}
       end
 
