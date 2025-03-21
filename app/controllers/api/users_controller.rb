@@ -36,7 +36,7 @@ module Api
       if valid_user_params?(user_params)
         @user = User.create!(user_params)
         @user.set_uuid
-        render json: @user, status: 201
+        render json: generate_token, status: 201
       else
         render json: { "error": "Ошибка в параметрах пользователя" }, code: 401
       end
