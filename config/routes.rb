@@ -7,6 +7,11 @@ Rails.application.routes.draw do
         post :authorization
         get :get_me
       end
+      member do
+        get :guns
+        post :guns, to: 'create_gun'
+        put :guns, to: 'update_gun'
+      end
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

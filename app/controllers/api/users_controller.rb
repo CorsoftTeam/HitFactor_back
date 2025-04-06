@@ -10,15 +10,21 @@ module Api
 
     # GET /users/1 or /users/1.json
     def show
-      check_token
-      @user = User.find_by_uuid(params[:id]) || { error: 'Пользователь не найден'}
-      render json: @user
+      unless check_token
+        render json: { "error": "token error" }, status: 403
+      else
+        @user = User.find_by_uuid(params[:id]) || { error: 'Пользователь не найден'}
+        render json: @user
+      end
     end
 
     def get_me
-      check_token
-      @user = User.find_by_uuid(session[:id]) || { error: 'Пользователь не найден'}
-      render json: @user
+      unless check_token
+        render json: { "error": "token error" }, status: 403
+      else
+        @user = User.find_by_uuid(session[:id]) || { error: 'Пользователь не найден'}
+        render json: @user
+      end
     end
 
     # GET /users/new
@@ -44,17 +50,23 @@ module Api
 
     # PATCH/PUT /users/1 or /users/1.json
     def update
-      check_token
-      set_user
-      @user.update!(user_params)
-      render json: @user
+      unless check_token
+        render json: { "error": "token error" }, status: 403
+      else
+        set_user
+        @user.update!(user_params)
+        render json: @user
+      end
     end
 
     # DELETE /users/1 or /users/1.json
     def destroy
-      check_token
-      set_user
-      @user.destroy!
+      unless check_token
+        render json: { "error": "token error" }, status: 403
+      else
+        set_user
+        @user.destroy!
+      end
     end
 
     def authorization
@@ -66,11 +78,43 @@ module Api
       end
     end
 
+    def guns
+      unless check_token
+        render json: { "error": "token error" }, status: 403
+      else
+        #render json: @user.guns
+        render json: user.guns
+      end
+    end
+
+    def create_gun
+      unless check_token
+        render json: { "error": "token error" }, status: 403
+      else
+        user.guns.create(guns_params)
+        render json: user.guns, status: 201
+      end
+    end
+
+    def update_gun
+      unless check_token
+        render json: { "error": "token error" }, status: 403
+      else
+        gun = user.guns.find(params[:gun_id])
+        gun.update(guns_params)
+        render json: user.guns, status: 201
+      end
+    end
+
     private
       # Use callbacks to share common setup or constraints between actions.
       def set_user
         @user = User.find_by_uuid(params[:id])
       end
+
+      def user
+        @user ||= User.find_by_uuid(params[:id])
+      end 
 
       # Only allow a list of trusted parameters through.
       def user_params
@@ -86,12 +130,16 @@ module Api
       end
 
       def check_token
-        time = Time.now - session[:token_time].to_time
-        render json: { "error": "неправильный токен" }, status: 403 unless session[:token] == request.headers['Authorization'] and time < 3600.0
+        time = Time.now - (session[:token_time]&.to_time || Time.at(0))
+        return (session[:token] == request.headers['Authorization'] and time < 3600.0)
       end
 
       def valid_user_params?(u_params)
         u_params = u_params.select { |k,v| !v.nil?}
+      end
+
+      def guns_params
+        params.permit(:name, :gun_type, :caliber, :magazine_size)
       end
   end
 end
