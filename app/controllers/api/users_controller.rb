@@ -78,6 +78,15 @@ module Api
       end
     end
 
+    def gun
+      unless check_token
+        render json: { "error": "token error" }, status: 403
+      else
+        #render json: @user.guns
+        render json: user.guns.find_by_id(params[:gun_id])
+      end
+    end
+
     def guns
       unless check_token
         render json: { "error": "token error" }, status: 403
@@ -100,9 +109,19 @@ module Api
       unless check_token
         render json: { "error": "token error" }, status: 403
       else
-        gun = user.guns.find(params[:gun_id])
-        gun.update(guns_params)
+        gun = user.guns.find_by_id(params[:gun_id])
+        gun.update(guns_params) if gun
         render json: user.guns, status: 201
+      end
+    end
+
+    def delete_gun
+      unless check_token
+        render json: { "error": "token error" }, status: 403
+      else
+        gun = user.guns.find_by_id(params[:gun_id])
+        gun.delete if gun
+        render json: user.guns, status: 204
       end
     end
 
@@ -139,7 +158,7 @@ module Api
       end
 
       def guns_params
-        params.permit(:name, :gun_type, :caliber, :magazine_size)
+        params.permit(:name, :gun_type, :caliber, :serial_number)
       end
   end
 end
