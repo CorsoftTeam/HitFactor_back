@@ -10,7 +10,9 @@ Rails.application.routes.draw do
       member do
         get :guns
         post :guns, to: 'create_gun'
-        put :guns, to: 'update_gun'
+        put 'guns/:gun_id', to: 'update_gun'
+        delete 'guns/:gun_id', to: 'delete_gun'
+        get 'guns/:gun_id', to: 'gun'
       end
     end
   end

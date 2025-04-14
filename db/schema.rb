@@ -10,15 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_06_101054) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_14_202459) do
   create_table "guns", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
     t.string "gun_type"
-    t.float "caliber"
-    t.integer "magazine_size"
+    t.string "caliber"
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "serial_number"
     t.index ["user_id"], name: "index_guns_on_user_id"
   end
 
