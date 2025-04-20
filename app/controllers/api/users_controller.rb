@@ -78,6 +78,42 @@ module Api
       end
     end
 
+    def get_user_image
+      unless check_token
+        render json: { "error": "token error" }, status: 403
+      else
+        render json: { user_image: user.image.attached? ? url_for(user.image) : nil }
+      end
+    end
+
+    def update_user_image
+      unless check_token
+        render json: { "error": "token error" }, status: 403
+      else
+        @user.update(image: params[:image])
+        render json: { user_image: user.image.attached? ? url_for(user.image) : nil }
+      end
+    end
+
+    def get_gun_sound
+      unless check_token
+        render json: { "error": "token error" }, status: 403
+      else
+        gun = user.guns.find_by_id(params[:gun_id])
+        render json: { gun_sound: gun.sound.attached? ? url_for(gun.sound) : nil }
+      end
+    end
+
+    def update_gun_sound
+      unless check_token
+        render json: { "error": "token error" }, status: 403
+      else
+        gun = user.guns.find_by_id(params[:gun_id])
+        gun.update(sound: params[:sound])
+        render json: { gun_sound: gun.sound.attached? ? url_for(gun.sound) : nil }
+      end
+    end
+
     def gun
       unless check_token
         render json: { "error": "token error" }, status: 403
@@ -158,7 +194,7 @@ module Api
       end
 
       def guns_params
-        params.permit(:name, :gun_type, :caliber, :serial_number)
+        params.permit(:name, :gun_type, :caliber, :serial_number, :sound)
       end
   end
 end

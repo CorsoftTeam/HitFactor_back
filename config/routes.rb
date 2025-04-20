@@ -8,9 +8,13 @@ Rails.application.routes.draw do
         get :get_me
       end
       member do
+        get 'image', to: 'get_user_image'
         get :guns
+        get 'guns/:gun_id/sound', to: 'get_gun_sound'
         post :guns, to: 'create_gun'
+        put 'image', to: 'update_user_image'
         put 'guns/:gun_id', to: 'update_gun'
+        put 'guns/:gun_id/sound', to: 'update_gun_sound'
         delete 'guns/:gun_id', to: 'delete_gun'
         get 'guns/:gun_id', to: 'gun'
       end
