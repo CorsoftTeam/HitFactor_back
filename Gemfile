@@ -14,6 +14,7 @@ gem 'will_paginate', '~> 4.0'
 gem 'bootsnap'
 gem 'ostruct'
 gem 'rswag'
+gem 'digest'
 
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
