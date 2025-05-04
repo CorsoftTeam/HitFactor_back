@@ -97,6 +97,7 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     diff-lcs (1.6.0)
+    digest (3.2.0)
     docile (1.4.1)
     drb (2.2.1)
     erubi (1.13.1)
@@ -345,6 +346,7 @@ DEPENDENCIES
   bunny
   byebug (~> 11.1)
   debug (~> 1.8)
+  digest
   factory_bot_rails (~> 6.2)
   faker (~> 3.2, >= 3.2.1)
   faraday
