@@ -22,8 +22,7 @@ module Api
     # POST /users or /users.json
     def create
       if valid_user_params?(user_params)
-        params[:password] = Digest::SHA256.hexdigest(params[:password])
-        @user = User.create!(user_params)
+        @user = User.create!(user_params.merge({ password: Digest::SHA256.hexdigest(params[:password]) }))
         @user.set_uuid
         render json: generate_token, status: 201
       else
