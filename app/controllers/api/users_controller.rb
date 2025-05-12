@@ -2,6 +2,7 @@ module Api
   class UsersController < ApplicationController
     skip_before_action :verify_authenticity_token
     before_action :check_token, except: %i[ index create authorization ]
+    before_action :set_user, only: %i[ gun guns create_gun update_gun delete_gun ]
 
     # GET /users or /users.json
     def index
@@ -32,17 +33,15 @@ module Api
 
     # PATCH/PUT /users/1 or /users/1.json
     def update
-      set_user
       new_params = user_params
       new_params[:password] = Digest::SHA256.hexdigest(new_params[:password])
-      @user.update!(new_params)
+      user.update!(new_params)
       render json: @user.except(:password)
     end
 
     # DELETE /users/1 or /users/1.json
     def destroy
-      set_user
-      @user.destroy!
+      user.destroy!
     end
 
     def authorization
@@ -59,7 +58,7 @@ module Api
     end
 
     def update_user_image
-      @user.update(image: params[:image])
+      user.update(image: params[:image])
       render json: { user_image: user.image.attached? ? url_for(user.image) : nil }
     end
 
@@ -75,35 +74,35 @@ module Api
     end
 
     def gun
-      render json: @user.guns.find_by_id(params[:gun_id])
+      render json: user.guns.find_by_id(params[:gun_id])
     end
 
     def guns
-      render json: { "error": "token error" }, status: 403
-      render json: @user.guns
+      render json: user.guns
     end
 
     def create_gun
       user.guns.create(guns_params)
-      render json: @user.guns, status: 201
+      render json: user.guns, status: 201
     end
 
     def update_gun
       gun = user.guns.find_by_id(params[:gun_id])
       gun.update(guns_params) if gun
-      render json: @user.guns, status: 201
+      render json: user.guns, status: 201
     end
 
     def delete_gun
       gun = user.guns.find_by_id(params[:gun_id])
       gun.delete if gun
-      render json: @user.guns, status: 204
+      render json: user.guns, status: 204
     end
 
     private
       # Use callbacks to share common setup or constraints between actions.
       def set_user
         @user = User.find_by_uuid(params[:id])
+        render json: { error: 'Пользователь не найден'}, status: 404 unless @user
       end
 
       def user
