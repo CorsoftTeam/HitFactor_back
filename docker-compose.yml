@@ -1,4 +1,3 @@
-version: '4'
 services:
   server: 
     build: .
@@ -12,6 +11,20 @@ services:
       - 3002:3002
     depends_on:
       - mysql
+      - rabbitmq
+
+  listener:
+    container_name: listener
+    build: .
+    command: bash -c "rails runner 'RabbitListener.new.subscribe'"
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      RAILS_LOG_TO_STDOUT: "true" 
+    volumes:
+      - ./log:/app/log # Монтируем директорию с логами
   
   mysql:
     platform: linux/x86_64
@@ -22,5 +35,34 @@ services:
     volumes:
       - mysql:/var/lib/mysql
 
+  rabbitmq:
+    image: rabbitmq:management-alpine
+    container_name: rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    ports:
+      - 15672:15672
+      - 5672:5672
+    volumes:
+      - rabbit:/var/lib/rabbitmq
+
+  python-worker:
+    container_name: python-worker
+    build: ../py_app
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - INPUT_QUEUE=ruby_to_py
+      - OUTPUT_QUEUE=py_to_ruby
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   mysql:
+  rabbit:

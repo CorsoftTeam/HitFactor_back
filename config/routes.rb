@@ -17,6 +17,8 @@ Rails.application.routes.draw do
         put 'guns/:gun_id/sound', to: 'update_gun_sound'
         delete 'guns/:gun_id', to: 'delete_gun'
         get 'guns/:gun_id', to: 'gun'
+        post 'find_gun_by_shoot', to: 'find_gun_by_shoot'
+        get 'last_shot', to: 'last_shot'
       end
     end
   end
