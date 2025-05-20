@@ -23,4 +23,4 @@ COPY . .
 EXPOSE 3000
 
 # устанавливаем команду по умолчанию
-CMD ["rails", "server", "-b", "0.0.0.0"]
+CMD ["rails", "server", "-b", "0.0.0.0", "&", "rails", "runner", "RabbitListner.new.subscribe"]

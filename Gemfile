@@ -15,6 +15,7 @@ gem 'bootsnap'
 gem 'ostruct'
 gem 'rswag'
 gem 'digest'
+gem 'bunny'
 
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible

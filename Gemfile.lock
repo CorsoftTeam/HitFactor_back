@@ -99,6 +99,10 @@ GEM
     diff-lcs (1.6.0)
     digest (3.2.0)
     docile (1.4.1)
+    dotenv (3.1.8)
+    dotenv-rails (3.1.8)
+      dotenv (= 3.1.8)
+      railties (>= 6.1)
     drb (2.2.1)
     erubi (1.13.1)
     factory_bot (6.5.1)
@@ -347,6 +351,7 @@ DEPENDENCIES
   byebug (~> 11.1)
   debug (~> 1.8)
   digest
+  dotenv-rails
   factory_bot_rails (~> 6.2)
   faker (~> 3.2, >= 3.2.1)
   faraday

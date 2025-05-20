@@ -98,6 +98,27 @@ module Api
       render json: user.guns, status: 204
     end
 
+    def find_gun_by_shoot
+      message ={
+        user_id: user.id,
+        message_id: SecureRandom.uuid,
+        data: user.guns.select { |gun| gun.sound.attached? }.map do |gun|
+          {
+            id: gun.id,
+            name: gun.name,
+            sound_url: rails_blob_url(gun.sound)
+          }
+        end
+      }
+      publisher.send_message(message)
+      render json: { message: message, status: 'successfully sended'}, status: 201
+    end
+
+    def last_shot
+      user.update(parameters: {}) if user.parameters.nil?
+      render json: user.parameters['last_shot'].to_json, status: 200
+    end
+
     private
       # Use callbacks to share common setup or constraints between actions.
       def set_user
@@ -115,15 +136,16 @@ module Api
       end
 
       def generate_token
-        session[:token_time] = Time.now
+        # session[:token_time] = Time.now
         session[:token] = SecureRandom.hex(32)
         session[:id] = @user.uuid
         {token: session[:token]}
       end
 
       def check_token
-        time = Time.now - (session[:token_time]&.to_time || Time.at(0))
-        render json: { 'error': 'token error' }, status: 403 unless (session[:token] == request.headers['Authorization'] and time < 3600.0)
+        # Проверка времени убрана из-за особенностей работы с мобильным приложением
+        # time = Time.now - (session[:token_time]&.to_time || Time.at(0))
+        render json: { 'error': 'token error' }, status: 403 unless session[:token] == request.headers['Authorization'] # and time < 3600.0)
       end
 
       def valid_user_params?(u_params)
@@ -132,6 +154,10 @@ module Api
 
       def guns_params
         params.permit(:name, :gun_type, :caliber, :serial_number, :sound)
+      end
+
+      def publisher
+        @publisher ||= RabbitPublisher.new
       end
   end
 end
