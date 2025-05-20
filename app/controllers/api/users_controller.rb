@@ -1,7 +1,8 @@
 module Api
   class UsersController < ApplicationController
     skip_before_action :verify_authenticity_token
-    #before_action :set_user, only: %i[ show edit update destroy ]
+    before_action :check_token, except: %i[ index create authorization ]
+    before_action :set_user, only: %i[ gun guns create_gun update_gun delete_gun ]
 
     # GET /users or /users.json
     def index
@@ -10,37 +11,19 @@ module Api
 
     # GET /users/1 or /users/1.json
     def show
-      unless check_token
-        render json: { "error": "token error" }, status: 403
-      else
-        @user = User.find_by_uuid(params[:id]) || { error: 'Пользователь не найден'}
-        render json: @user
-      end
+      @user = User.find_by_uuid(params[:id]) || { error: "Нет ни метода #{params[:id]}, ни пользователя с таким id"}
+      render json: @user.except(:password)
     end
 
     def get_me
-      unless check_token
-        render json: { "error": "token error" }, status: 403
-      else
-        @user = User.find_by_uuid(session[:id]) || { error: 'Пользователь не найден'}
-        render json: @user
-      end
-    end
-
-    # GET /users/new
-    def new
-      @user = User.new
-    end
-
-    # GET /users/1/edit
-    def edit
+      @user = User.find_by_uuid(session[:id]) || { error: 'Пользователь не найден'}
+      render json: @user.except(:password)
     end
 
     # POST /users or /users.json
     def create
-      p "params = #{params}. Это nil? - #{params.nil?}"
       if valid_user_params?(user_params)
-        @user = User.create!(user_params)
+        @user = User.create!(user_params.merge({ password: Digest::SHA256.hexdigest(params[:password]) }))
         @user.set_uuid
         render json: generate_token, status: 201
       else
@@ -50,27 +33,19 @@ module Api
 
     # PATCH/PUT /users/1 or /users/1.json
     def update
-      unless check_token
-        render json: { "error": "token error" }, status: 403
-      else
-        set_user
-        @user.update!(user_params)
-        render json: @user
-      end
+      new_params = user_params
+      new_params[:password] = Digest::SHA256.hexdigest(new_params[:password])
+      user.update!(new_params)
+      render json: @user.except(:password)
     end
 
     # DELETE /users/1 or /users/1.json
     def destroy
-      unless check_token
-        render json: { "error": "token error" }, status: 403
-      else
-        set_user
-        @user.destroy!
-      end
+      user.destroy!
     end
 
     def authorization
-      @user = User.find_by(login: params[:login], password: params[:password])
+      @user = User.find_by(login: params[:login], password: Digest::SHA256.hexdigest(params[:password]))
       if @user
         render json: generate_token
       else
@@ -79,86 +54,48 @@ module Api
     end
 
     def get_user_image
-      unless check_token
-        render json: { "error": "token error" }, status: 403
-      else
         render json: { user_image: user.image.attached? ? url_for(user.image) : nil }
-      end
     end
 
     def update_user_image
-      unless check_token
-        render json: { "error": "token error" }, status: 403
-      else
-        @user.update(image: params[:image])
-        render json: { user_image: user.image.attached? ? url_for(user.image) : nil }
-      end
+      user.update(image: params[:image])
+      render json: { user_image: user.image.attached? ? url_for(user.image) : nil }
     end
 
     def get_gun_sound
-      unless check_token
-        render json: { "error": "token error" }, status: 403
-      else
-        gun = user.guns.find_by_id(params[:gun_id])
-        render json: { gun_sound: gun.sound.attached? ? url_for(gun.sound) : nil }
-      end
+      gun = user.guns.find_by_id(params[:gun_id])
+      render json: { gun_sound: gun.sound.attached? ? url_for(gun.sound) : nil }
     end
 
     def update_gun_sound
-      unless check_token
-        render json: { "error": "token error" }, status: 403
-      else
-        gun = user.guns.find_by_id(params[:gun_id])
-        gun.update(sound: params[:sound])
-        render json: { gun_sound: gun.sound.attached? ? url_for(gun.sound) : nil }
-      end
+      gun = user.guns.find_by_id(params[:gun_id])
+      gun.update(sound: params[:sound])
+      render json: { gun_sound: gun.sound.attached? ? url_for(gun.sound) : nil }
     end
 
     def gun
-      unless check_token
-        render json: { "error": "token error" }, status: 403
-      else
-        #render json: @user.guns
-        render json: user.guns.find_by_id(params[:gun_id])
-      end
+      render json: user.guns.find_by_id(params[:gun_id])
     end
 
     def guns
-      unless check_token
-        render json: { "error": "token error" }, status: 403
-      else
-        #render json: @user.guns
-        render json: user.guns
-      end
+      render json: user.guns
     end
 
     def create_gun
-      unless check_token
-        render json: { "error": "token error" }, status: 403
-      else
-        user.guns.create(guns_params)
-        render json: user.guns, status: 201
-      end
+      user.guns.create(guns_params)
+      render json: user.guns, status: 201
     end
 
     def update_gun
-      unless check_token
-        render json: { "error": "token error" }, status: 403
-      else
-        gun = user.guns.find_by_id(params[:gun_id])
-        gun.update(guns_params) if gun
-        render json: user.guns, status: 201
-      end
+      gun = user.guns.find_by_id(params[:gun_id])
+      gun.update(guns_params) if gun
+      render json: user.guns, status: 201
     end
 
     def delete_gun
-      unless check_token
-        render json: { "error": "token error" }, status: 403
-      else
-        gun = user.guns.find_by_id(params[:gun_id])
-        gun.delete if gun
-        render json: user.guns, status: 204
-      end
+      gun = user.guns.find_by_id(params[:gun_id])
+      gun.delete if gun
+      render json: user.guns, status: 204
     end
 
     def find_gun_by_shoot
@@ -186,6 +123,7 @@ module Api
       # Use callbacks to share common setup or constraints between actions.
       def set_user
         @user = User.find_by_uuid(params[:id])
+        render json: { error: 'Пользователь не найден'}, status: 404 unless @user
       end
 
       def user
@@ -194,7 +132,6 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def user_params
-        p "params = #{params}. Это nil? - #{params.nil?}"
         params.require(:user).permit(:name, :last_name, :login, :email, :phone_number, :password, :uuid, :parameters)
       end
 

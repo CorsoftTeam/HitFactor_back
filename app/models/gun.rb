@@ -3,11 +3,11 @@ class Gun < ApplicationRecord
   belongs_to :user
   has_one_attached :sound
 
-  GUN_TYPES = [ 'self_defence', 'pistol', 'pc', 'carbine', 'shotgun', 'гладкоствол', 'bolt_action' ]
+  GUN_TYPES = [ 'self_defence', 'pistol', 'pcc', 'carbine', 'shotgun', 'bolt_action' ]
 
-  validate :real_gun_type
+  validate :validate_gun_type
 
-  def real_gun_type
+  def validate_gun_type
     GUN_TYPES.include?(self.gun_type)
   end
 end
