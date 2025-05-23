@@ -51,7 +51,7 @@ services:
 
   python-worker:
     container_name: python-worker
-    build: ../py_app
+    build: ../shot_analysis
     environment:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_USER=guest
