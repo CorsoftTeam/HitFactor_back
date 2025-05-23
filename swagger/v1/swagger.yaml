@@ -1,11 +1,340 @@
----
 openapi: 3.0.1
 info:
-  title: API V1
+  title: Corsoft API
   version: v1
-paths: {}
 servers:
-- url: https://{defaultHost}
-  variables:
-    defaultHost:
-      default: www.example.com
+  - url: https://{defaultHost}
+    variables:
+      defaultHost:
+        default: www.example.com
+paths:
+  /api/users:
+    post:
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                login:
+                  type: string
+                name:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - login
+                - name
+                - password
+      responses:
+        '200':
+          description: User created successfully
+
+  /api/users/authorization:
+    post:
+      summary: Authorize user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                login:
+                  type: string
+                password:
+                  type: string
+              required:
+                - login
+                - password
+      responses:
+        '200':
+          description: Authorization successful
+
+  /api/users/{uuid}:
+    get:
+      summary: Get user by UUID
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User data retrieved successfully
+    patch:
+      summary: Update user information
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                last_name:
+                  type: string
+                login:
+                  type: string
+                email:
+                  type: string
+                phone_number:
+                  type: string
+                password:
+                  type: string
+                parameters:
+                  type: object
+      responses:
+        '200':
+          description: User updated successfully
+    delete:
+      summary: Delete user
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User deleted successfully
+
+  /api/users/get_me:
+    get:
+      summary: Get current user info
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user info retrieved successfully
+
+  /api/users/{uuid}/image:
+    get:
+      summary: Get user image
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User image retrieved successfully
+    put:
+      summary: Update user image
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User image updated successfully
+
+  /api/users/{uuid}/guns:
+    get:
+      summary: Get all user's guns
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of guns retrieved successfully
+    post:
+      summary: Create a new gun
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                gun_type:
+                  type: string
+                caliber:
+                  type: number
+                serial_number:
+                  type: string
+              required:
+                - name
+                - gun_type
+                - caliber
+                - serial_number
+      responses:
+        '200':
+          description: Gun created successfully
+
+  /api/users/{uuid}/guns/{gun_id}:
+    get:
+      summary: Get specific gun
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: gun_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Gun data retrieved successfully
+    put:
+      summary: Update gun information
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: gun_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                gun_type:
+                  type: string
+                caliber:
+                  type: string
+                serial_number:
+                  type: string
+      responses:
+        '200':
+          description: Gun updated successfully
+
+  /api/users/{uuid}/guns/{gun_id}/sound:
+    get:
+      summary: Get gun sound
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: gun_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Gun sound retrieved successfully
+    put:
+      summary: Update gun sound
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: gun_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                sound:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Gun sound updated successfully
+
+  /api/users/{uuid}/last_shot:
+    get:
+      summary: Get last shot information
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Last shot info retrieved successfully
+
+  /api/users/{uuid}/find_gun_by_shoot:
+    post:
+      summary: Find gun by shoot
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Gun found successfully
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
