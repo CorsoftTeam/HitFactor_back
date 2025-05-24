@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :workouts
+  resources :clubs
   mount Rswag::Ui::Engine => '/swagger'
   mount Rswag::Api::Engine => '/swagger'
   namespace :api do

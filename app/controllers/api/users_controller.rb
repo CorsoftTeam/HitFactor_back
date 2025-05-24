@@ -25,6 +25,7 @@ module Api
       if valid_user_params?(user_params)
         @user = User.create!(user_params.merge({ password: Digest::SHA256.hexdigest(params[:password]) }))
         @user.set_uuid
+        @user.update(parameters: {}) if @user.parameters.nil?
         render json: generate_token, status: 201
       else
         render json: { "error": "Ошибка в параметрах пользователя" }, code: 401
