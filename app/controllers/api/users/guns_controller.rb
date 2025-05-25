@@ -12,8 +12,6 @@ module Api
   
       def update_sound
         @gun.update!(sound: params[:sound])
-        Rails.logger.debug @gun
-        Rails.logger.debug @gun.sound.attached?
         render json: { gun_sound: @gun.sound.attached? ? url_for(@gun.sound) : nil }
       end
   

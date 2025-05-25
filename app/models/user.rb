@@ -18,13 +18,13 @@ class User < ApplicationRecord
 
   def admin_for?(club_id)
     self.update(parameters: {}) if self.parameters.nil? 
-    Rails.logger.debug self.parameters['admin_for']
-    Rails.logger.debug club_id.kind_of?(Integer)
+    Rails.logger.debug self.parameters['admin_for']&.include?(club_id.to_i)
     self.parameters['admin_for']&.include?(club_id.to_i)
   end
   
   def coach_for?(club_id)
     self.update(parameters: {}) if self.parameters.nil? 
+    Rails.logger.debug self.parameters['admin_for']&.include?(club_id.to_i)
     self.parameters['coach_for']&.include?(club_id.to_i)
   end
 end

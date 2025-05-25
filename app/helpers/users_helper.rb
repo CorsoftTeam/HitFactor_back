@@ -22,7 +22,6 @@ module UsersHelper
   end
 
   def check_token
-    Rails.logger.debug "headers: #{request.headers['Authorization']}"
     # Проверка времени убрана из-за особенностей работы с мобильным приложением
     # time = Time.now - (session[:token_time]&.to_time || Time.at(0))
     if !session[:token] == request.headers['Authorization']

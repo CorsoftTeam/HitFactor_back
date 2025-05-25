@@ -15,7 +15,6 @@ module Api
     end
     
     def create
-      Rails.logger.debug "headers: #{request.headers['Authorization']}"
       begin
         admin = User.find_by_uuid(session[:uuid])
         render json: { error: @club.errors }, status: 404 unless admin
@@ -42,10 +41,10 @@ module Api
     def add_admin
       begin
         admin = User.find_by_uuid(params[:admin_uuid])
-        admins_list = admin.parameters&['admin_for'] || []
+        admins_list = admin.parameters['admin_for'] || []
         if admins_list.kind_of?(Array)
-          admins_list.add(params[:id].to_i) unless admins_list.include?(params[:id].to_i)
-          admin.update!
+          admins_list << (params[:id].to_i) unless admins_list.include?(params[:id].to_i)
+          admin.update!(parameters: admin.parameters.merge({ 'admin_for': admins_list}))
         end
         render json: { 'success': 'admin added' }, status: 201
       rescue => e
@@ -56,10 +55,10 @@ module Api
     def add_coach
       begin
         coach = User.find_by_uuid(params[:coach_uuid])
-        coach_list = admin.parameters&['coach_for'] || []
+        coach_list = admin.parameters['coach_for'] || []
         if coach_list.kind_of?(Array)
-          coach_list.add(params[:id].to_i) unless coach_list.include?(params[:id].to_i)
-          coach.update!
+          coach_list << (params[:id].to_i) unless coach_list.include?(params[:id].to_i)
+          coach.update!(parameters: coach.parameters.merge({ 'coach_for': coach_list }))
         end
         render json: { success: 'coach added' }, status: :created
       rescue => e
@@ -70,11 +69,11 @@ module Api
     def delete_admin
       begin
         admin = User.find_by_uuid(params[:admin_uuid])
-        admins_list = admin.parameters&['admin_for'] || []
+        admins_list = admin.parameters['admin_for'] || []
         if admins_list.kind_of?(Array)
           admins_list.delete(params[:id].to_i)
         end
-        render json: { 'success': 'admin deleted'}, status: :deleted
+        render json: { 'success': 'admin deleted'}, status: 204
       rescue => e
         render json: { error: e.message }, status: 401
       end
@@ -83,11 +82,11 @@ module Api
     def delete_coach
       begin
         coach = User.find_by_uuid(params[:coach_uuid])
-        coach_list = admin.parameters&['coach_for'] || []
+        coach_list = admin.parameters['coach_for'] || []
         if coach_list.kind_of?(Array)
           coach_list.delete(params[:id].to_i)
         end
-        render json: { 'success': 'coach deleted'}, status: :deleted
+        render json: { 'success': 'coach deleted'}, status: 204
       rescue => e
         render json: { error: e.message }, status: 401
       end
