@@ -22,22 +22,26 @@ module Api
 
     # POST /users or /users.json
     def create
-      if valid_user_params?(user_params)
+      begin
         @user = User.create!(user_params.merge({ password: Digest::SHA256.hexdigest(params[:password]) }))
         @user.set_uuid
         @user.update(parameters: {}) if @user.parameters.nil?
         render json: generate_token, status: 201
-      else
-        render json: { "error": "Ошибка в параметрах пользователя" }, code: 401
+      rescue => e
+        render json: { error: e.message }, status: 401
       end
     end
 
     # PATCH/PUT /users/1 or /users/1.json
     def update
-      new_params = user_params
-      new_params[:password] = Digest::SHA256.hexdigest(new_params[:password])
-      user.update!(new_params)
-      render json: @user.except(:password)
+      begin
+        new_params = user_params
+        new_params[:password] = Digest::SHA256.hexdigest(new_params[:password])
+        user.update!(new_params)
+        render json: user.except(:password)
+      rescue => e
+        render json: { error: e.message }, status: 401
+      end
     end
 
     # DELETE /users/1 or /users/1.json

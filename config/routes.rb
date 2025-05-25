@@ -1,9 +1,18 @@
 Rails.application.routes.draw do
-  resources :workouts
-  resources :clubs
   mount Rswag::Ui::Engine => '/swagger'
   mount Rswag::Api::Engine => '/swagger'
   namespace :api do
+    resources :workouts
+    resources :clubs do
+      member do
+        delete :admin, to: 'delete_admin'
+        delete :coach, to: 'delete_coach'
+  
+        post :admin, to: 'add_admin'
+        post :coach, to: 'add_coach'
+      end
+    end
+    
     resources :users, param: :uuid do
       collection do
         post :authorization

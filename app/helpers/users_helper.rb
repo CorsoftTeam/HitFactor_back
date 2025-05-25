@@ -22,9 +22,14 @@ module UsersHelper
   end
 
   def check_token
+    Rails.logger.debug "headers: #{request.headers['Authorization']}"
     # Проверка времени убрана из-за особенностей работы с мобильным приложением
     # time = Time.now - (session[:token_time]&.to_time || Time.at(0))
-    render json: { 'error': 'token error' }, status: 403 unless session[:token] == request.headers['Authorization'] # and time < 3600.0)
+    if !session[:token] == request.headers['Authorization']
+      render json: { 'error': 'token error' }, status: 403 unless session[:token] == request.headers['Authorization']
+    elsif params[:uuid].present? && session[:uuid] != params[:uuid]
+      render json: { 'error': 'token error' }, status: 403  unless params[:uuid].present? && session[:uuid] != params[:uuid]
+    end
   end
 
   def valid_user_params?(u_params)
