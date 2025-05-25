@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_20_220340) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_25_144444) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -39,6 +39,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_20_220340) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "clubs", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.string "address"
+    t.string "open_time_workday"
+    t.string "close_time_workday"
+    t.string "open_time_weekend"
+    t.string "close_time_weekend"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "phone"
+  end
+
   create_table "guns", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
     t.string "gun_type"
@@ -63,7 +75,22 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_20_220340) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "workouts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.datetime "start_time"
+    t.integer "coach_id", null: false
+    t.bigint "student_id"
+    t.bigint "club_id", null: false
+    t.boolean "need_gun", default: true
+    t.boolean "open", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["club_id"], name: "index_workouts_on_club_id"
+    t.index ["student_id"], name: "index_workouts_on_student_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "guns", "users"
+  add_foreign_key "workouts", "clubs"
+  add_foreign_key "workouts", "users", column: "student_id"
 end
