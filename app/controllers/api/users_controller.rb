@@ -1,8 +1,8 @@
 module Api
   class UsersController < ApplicationController
+    include UsersHelper
     skip_before_action :verify_authenticity_token
     before_action :check_token, except: %i[ index create authorization ]
-    before_action :set_user, only: %i[ gun guns create_gun update_gun delete_gun ]
 
     # GET /users or /users.json
     def index
@@ -11,12 +11,12 @@ module Api
 
     # GET /users/1 or /users/1.json
     def show
-      @user = User.find_by_uuid(params[:id]) || { error: "Нет ни метода #{params[:id]}, ни пользователя с таким id"}
+      @user = User.find_by_uuid(params[:uuid]) || { error: "Нет ни метода #{params[:uuid]}, ни пользователя с таким uuid"}
       render json: @user.except(:password)
     end
 
     def get_me
-      @user = User.find_by_uuid(session[:id]) || { error: 'Пользователь не найден'}
+      @user = User.find_by_uuid(session[:uuid]) || { error: 'Пользователь не найден'}
       render json: @user.except(:password)
     end
 
@@ -63,40 +63,9 @@ module Api
       render json: { user_image: user.image.attached? ? url_for(user.image) : nil }
     end
 
-    def get_gun_sound
-      gun = user.guns.find_by_id(params[:gun_id])
-      render json: { gun_sound: gun.sound.attached? ? url_for(gun.sound) : nil }
-    end
-
-    def update_gun_sound
-      gun = user.guns.find_by_id(params[:gun_id])
-      gun.update(sound: params[:sound])
-      render json: { gun_sound: gun.sound.attached? ? url_for(gun.sound) : nil }
-    end
-
-    def gun
-      render json: user.guns.find_by_id(params[:gun_id])
-    end
-
-    def guns
-      render json: user.guns
-    end
-
-    def create_gun
-      user.guns.create(guns_params)
-      render json: user.guns, status: 201
-    end
-
-    def update_gun
-      gun = user.guns.find_by_id(params[:gun_id])
-      gun.update(guns_params) if gun
-      render json: user.guns, status: 201
-    end
-
-    def delete_gun
-      gun = user.guns.find_by_id(params[:gun_id])
-      gun.delete if gun
-      render json: user.guns, status: 204
+    def last_shot
+      user.update(parameters: {}) if user.parameters.nil?
+      render json: user.parameters['last_shot'].to_json, status: 200
     end
 
     def find_gun_by_shoot
@@ -115,50 +84,10 @@ module Api
       render json: { message: message, status: 'successfully sended'}, status: 201
     end
 
-    def last_shot
-      user.update(parameters: {}) if user.parameters.nil?
-      render json: user.parameters['last_shot'].to_json, status: 200
-    end
-
     private
-      # Use callbacks to share common setup or constraints between actions.
-      def set_user
-        @user = User.find_by_uuid(params[:id])
-        render json: { error: 'Пользователь не найден'}, status: 404 unless @user
-      end
 
-      def user
-        @user ||= User.find_by_uuid(params[:id])
-      end 
-
-      # Only allow a list of trusted parameters through.
-      def user_params
-        params.require(:user).permit(:name, :last_name, :login, :email, :phone_number, :password, :uuid, :parameters)
-      end
-
-      def generate_token
-        # session[:token_time] = Time.now
-        session[:token] = SecureRandom.hex(32)
-        session[:id] = @user.uuid
-        {token: session[:token]}
-      end
-
-      def check_token
-        # Проверка времени убрана из-за особенностей работы с мобильным приложением
-        # time = Time.now - (session[:token_time]&.to_time || Time.at(0))
-        render json: { 'error': 'token error' }, status: 403 unless session[:token] == request.headers['Authorization'] # and time < 3600.0)
-      end
-
-      def valid_user_params?(u_params)
-        u_params = u_params.select { |k,v| !v.nil?}
-      end
-
-      def guns_params
-        params.permit(:name, :gun_type, :caliber, :serial_number, :sound)
-      end
-
-      def publisher
-        @publisher ||= RabbitPublisher.new
-      end
+    def publisher
+      @publisher ||= RabbitPublisher.new
+    end
   end
 end

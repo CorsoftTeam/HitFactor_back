@@ -4,23 +4,23 @@ Rails.application.routes.draw do
   mount Rswag::Ui::Engine => '/swagger'
   mount Rswag::Api::Engine => '/swagger'
   namespace :api do
-    resources :users do
+    resources :users, param: :uuid do
       collection do
         post :authorization
         get :get_me
       end
       member do
         get 'image', to: 'get_user_image'
-        get :guns
-        get 'guns/:gun_id/sound', to: 'get_gun_sound'
-        post :guns, to: 'create_gun'
         put 'image', to: 'update_user_image'
-        put 'guns/:gun_id', to: 'update_gun'
-        put 'guns/:gun_id/sound', to: 'update_gun_sound'
-        delete 'guns/:gun_id', to: 'delete_gun'
-        get 'guns/:gun_id', to: 'gun'
-        post 'find_gun_by_shoot', to: 'find_gun_by_shoot'
-        get 'last_shot', to: 'last_shot'
+        get :last_shot
+        post :find_gun_by_shoot
+
+        resources :guns, module: :users, controller: 'guns' do
+          member do
+            get 'sound'
+            put 'sound', to: 'update_sound'
+          end
+        end
       end
     end
   end

@@ -11,4 +11,12 @@ class User < ApplicationRecord
   def set_uuid
     self.update(uuid: SecureRandom.uuid)
   end
+
+  def admin_for(club_id)
+    self.parameters['admin_for']&.include?(club_id)
+  end
+  
+  def coach_for(club_id)
+    self.parameters['coach_for']&.include?(club_id)
+  end
 end
