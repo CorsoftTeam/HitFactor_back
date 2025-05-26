@@ -73,19 +73,33 @@ module Api
     end
 
     def find_gun_by_shoot
-      message ={
-        user_id: user.id,
-        message_id: SecureRandom.uuid,
-        data: user.guns.select { |gun| gun.sound.attached? }.map do |gun|
+      secret_gun = Gun.create!(user: user, sound: params[:sound])
+      
+      if !secret_gun.sound.attached?
+        render json: { error: 'no sound'}, status:  401
+      else
+        message ={
+          user_id: user.uuid,
+          message_id: SecureRandom.uuid,
+          data: user.guns.select { |gun| gun.sound.attached? }.map do |gun|
+            {
+              id: gun.id,
+              name: gun.name,
+              sound_url: url_for(gun.sound)
+            }
+          end
+        }
+        message[:data] +[
           {
-            id: gun.id,
-            name: gun.name,
-            sound_url: rails_blob_url(gun.sound)
+            id: secret_gun.id,
+            name: secret_gun.name,
+            sound_url: url_for(secret_gun.sound)
           }
-        end
-      }
-      publisher.send_message(message)
-      render json: { message: message, status: 'successfully sended'}, status: 201
+        ]
+        publisher.send_message(message)
+        secret_gun.delete
+        render json: { message: message, status: 'successfully sended'}, status: 201
+      end
     end
 
     private

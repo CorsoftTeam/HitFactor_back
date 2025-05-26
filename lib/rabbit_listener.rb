@@ -25,11 +25,13 @@ class RabbitListener
   def process_message(payload)
     data = JSON.parse(payload)
     Rails.logger.debug "Received message: #{data}"
-    user = User.find(data['user_id'].to_i)
+    user = User.find_by_uuid(data['user_id'])
     raise "User not found" unless user
     last_shot = { message_id: data['message_id'], gun_id: data['gun']['id'], gun_name: data['gun']['name']}
     old_params = user.parameters || {}
     user.update!(parameters: old_params.merge({last_shot: last_shot}))
+    gun = Gun.find(data['gun']['id'].to_i)
+    gun.update!(shot_count: gun.shot_count + 1)
   end
 
   def delete
