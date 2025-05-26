@@ -15,6 +15,9 @@ WORKDIR $APP_PATH
 # устаналиваем гемы, необходимые приложению
 COPY Gemfile* $APP_PATH/
 RUN bundle install
+RUN apt-get update && \
+    apt-get install -y \
+    graphviz
 
 # копируем код приложения
 COPY . .
