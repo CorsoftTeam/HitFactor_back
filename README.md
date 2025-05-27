@@ -1,24 +1,14 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Этот репозиторий хранит в себе сервер приложения HitFactor. Его можно развернуть самостоятельно, включая анализ выстрелов (нужный для учёта настрела каждого из оружий). Инструкция по установке:
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+```
+git clone https://github.com/CorsoftTeam/HitFactor_back.git
+git clone https://github.com/CorsoftTeam/shot_analysis.git
+cd HitFactor_back
+docker compose build
+docker compose up -d
+docker exec -it server bash
+# в открывшейся консоли:
+rails db:create db:migrate
+```
