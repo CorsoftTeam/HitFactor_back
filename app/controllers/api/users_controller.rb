@@ -76,12 +76,13 @@ module Api
       secret_gun = Gun.create!(user: user, sound: params[:sound])
       
       if !secret_gun.sound.attached?
+        secret_gun.delete
         render json: { error: 'no sound'}, status:  401
       else
         message ={
           user_id: user.uuid,
           message_id: SecureRandom.uuid,
-          data: user.guns.select { |gun| gun.sound.attached? }.map do |gun|
+          data: user.guns.select { |gun| gun.sound.attached? && !gun.name.nil? }.map do |gun|
             {
               id: gun.id,
               name: gun.name,
@@ -89,15 +90,15 @@ module Api
             }
           end
         }
-        message[:data] +[
-          {
-            id: secret_gun.id,
-            name: secret_gun.name,
-            sound_url: url_for(secret_gun.sound)
-          }
-        ]
+        message[:data] = message[:data] +[
+                                            {
+                                              id: secret_gun.id,
+                                              name: nil,
+                                              sound_url: url_for(secret_gun.sound)
+                                            }
+                                          ]
+        
         publisher.send_message(message)
-        secret_gun.delete
         render json: { message: message, status: 'successfully sended'}, status: 201
       end
     end
