@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_26_132658) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_29_110552) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -60,6 +60,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_26_132658) do
     t.datetime "updated_at", null: false
     t.string "serial_number"
     t.integer "shot_count", default: 0
+    t.string "neyro_type"
     t.index ["user_id"], name: "index_guns_on_user_id"
   end
 

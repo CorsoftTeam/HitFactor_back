@@ -4,9 +4,9 @@ class User < ApplicationRecord
   has_many :guns
   has_one_attached :image
 
-  validates :email, uniqueness: true
+  validates :email, uniqueness: true, unless: -> { email.nil? }
   validates :login, uniqueness: true
-  validates :phone_number, uniqueness: true
+  validates :phone_number, uniqueness: true, unless: -> { email.nil? }
 
   def except(*keys)
     attributes.except(*keys.map(&:to_s))

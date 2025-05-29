@@ -33,7 +33,7 @@ class RabbitListener
       old_params = user.parameters || {}
       user.update!(parameters: old_params.merge({last_shot: last_shot}))
       gun = Gun.find(data['gun']['id'].to_i)
-      gun.update!(shot_count: gun.shot_count + 1)
+      gun.update!(shot_count: gun.shot_count + 1, neyro_type: data['gun']['type'])
     end
     secret_gun = Gun.find(data['secret_gun'].to_i).delete
   end
