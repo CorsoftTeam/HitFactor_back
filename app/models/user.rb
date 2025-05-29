@@ -6,7 +6,7 @@ class User < ApplicationRecord
 
   validates :email, uniqueness: true, unless: -> { email.nil? }
   validates :login, uniqueness: true
-  validates :phone_number, uniqueness: true, unless: -> { email.nil? }
+  validates :phone_number, uniqueness: true, unless: -> { phone_number.nil? }
 
   def except(*keys)
     attributes.except(*keys.map(&:to_s))
