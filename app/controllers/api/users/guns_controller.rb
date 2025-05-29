@@ -11,7 +11,7 @@ module Api
       end
   
       def update_sound
-        @gun.update!(sound: params[:sound])
+        @gun.update!(sound: params[:sound], neyro_type: nil)
         render json: { gun_sound: @gun.sound.attached? ? url_for(@gun.sound) : nil }
       end
   
