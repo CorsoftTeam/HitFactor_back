@@ -86,7 +86,8 @@ module Api
             {
               id: gun.id,
               name: gun.name,
-              sound_url: url_for(gun.sound)
+              sound_url: url_for(gun.sound),
+              type: gun.neyro_type
             }
           end
         }
@@ -94,7 +95,8 @@ module Api
                                             {
                                               id: secret_gun.id,
                                               name: nil,
-                                              sound_url: url_for(secret_gun.sound)
+                                              sound_url: url_for(secret_gun.sound),
+                                              type: nil
                                             }
                                           ]
         
