@@ -3,6 +3,7 @@ module Api
     include UsersHelper
     skip_before_action :verify_authenticity_token
     before_action :check_token, except: %i[ index create authorization ]
+    before_action :set_user, only: %i[ get_user_image update_user_image last_shot find_gun_by_shoot]
 
     # GET /users or /users.json
     def index
@@ -59,30 +60,30 @@ module Api
     end
 
     def get_user_image
-        render json: { user_image: user.image.attached? ? url_for(user.image) : nil }
+      render json: { user_image: @user.image.attached? ? url_for(@user.image) : nil }
     end
 
     def update_user_image
-      user.update(image: params[:image])
-      render json: { user_image: user.image.attached? ? url_for(user.image) : nil }
+      @user.update(image: params[:image])
+      render json: { user_image: @user.image.attached? ? url_for(@user.image) : nil }
     end
 
     def last_shot
-      user.update(parameters: {}) if user.parameters.nil?
-      render json: user.parameters['last_shot'].to_json, status: 200
+      @user.update(parameters: {}) if @user.parameters.nil?
+      render json: @user.parameters['last_shot'].to_json, status: 200
     end
 
     def find_gun_by_shoot
-      secret_gun = Gun.create!(user: user, sound: params[:sound])
+      secret_gun = Gun.create!(user: @user, sound: params[:sound])
       
       if !secret_gun.sound.attached?
         secret_gun.delete
         render json: { error: 'no sound'}, status:  401
       else
         message ={
-          user_id: user.uuid,
+          user_id: @user.uuid,
           message_id: SecureRandom.uuid,
-          data: user.guns.select { |gun| gun.sound.attached? && !gun.name.nil? }.map do |gun|
+          data: @user.guns.select { |gun| gun.sound.attached? && !gun.name.nil? }.map do |gun|
             {
               id: gun.id,
               name: gun.name,
